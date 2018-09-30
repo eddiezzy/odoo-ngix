@@ -1,0 +1,34 @@
+#######################START FROM HERE#####################
+server {
+       listen 443;
+       server_name localhost:8069;
+       ssl on;
+       ssl_certificate /etc/letsencrypt/live/beta.eddievape.store/fullchain.pem;
+       ssl_certificate_key /etc/letsencrypt/live/beta.eddievape.store/privkey.pem;
+       ssl_session_timeout 5m;
+       ssl_protocols SSLv3 TLSv1;
+       ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+       ssl_prefer_server_ciphers on;
+       location / {
+    proxy_pass  http://127.0.0.1:8069;
+        proxy_next_upstream zzxderror timeout invalid_header http_500 http_502 http_503 http_504;
+        proxy_buffer_size 128k;
+        proxy_buffers 16 64k;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    location ~* /web/static/ {
+      proxy_buffering off;
+      proxy_pass http://127.0.0.1:8069;
+    }
+    }
+}
+server {
+    listen 80;
+    server_name localhost:8069;
+     add_header Strict-Transport-Security max-age=2592000;
+     rewrite ^/.*$ https://$host$request_uri? permanent;
+     }
+#######################END HERE#####################
+	
+
